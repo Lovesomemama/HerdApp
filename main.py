@@ -2,13 +2,14 @@ from flask import Flask, jsonify, request, abort, json
 import werkzeug
 import datetime
 
-from storage import Storage
+from storage import Storage,Handler
 from action import Action
 from errors import *
 
 app = Flask(__name__)
 
 storage = Storage()
+handler = Handler(storage)
 
 
 @app.route('/v1/events/ping', methods=["GET"])
@@ -34,9 +35,9 @@ def get_list_from_to():
     except KeyError as err:
         raise InvalidQueryParam("KeyError: {}".format(err))
 
-    events = storage.get_list_from_to(start_time, end_time)
+    events = handler.get_list_from_to(start_time, end_time)
 
-    return jsonify(start_time=str(start_time), end_time=str(end_time), events=[p.to_json() for p in events]), 200
+    return jsonify(start_time=str(start_time), end_time=str(end_time), events = [p.to_json() for p in events]), 200
 
 
 @app.route('/v1/events/', methods=['POST'])
